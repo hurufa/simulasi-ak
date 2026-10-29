@@ -4,7 +4,7 @@
  */
 (function () {
   'use strict';
-  const APP_VERSION = '1.1.1';
+  const APP_VERSION = '1.7.1';
 
   const R = window.AKRules;
   const E = window.AKEngine;
@@ -93,6 +93,16 @@
         h('span', { text: st.label })));
     });
     $('rules-version').textContent = R.meta.version;
+    const ikdRef = $('ikd-ref');
+    [['L', 'Menuju Lektor'], ['LK', 'Menuju Lektor Kepala'], ['P', 'Menuju Profesor']].forEach(function (t) {
+      const d = R.ikd[t[0]];
+      ikdRef.appendChild(h('h4', { class: 'ikd-ref__title', text: t[1] }));
+      const ul = h('ul');
+      d.pendidikan.forEach(function (x) { ul.appendChild(h('li', { text: 'Pendidikan: ' + x })); });
+      ul.appendChild(h('li', { text: 'Penelitian: ' + d.penelitian }));
+      ul.appendChild(h('li', { text: 'Pengabdian: ' + d.pengabdian }));
+      ikdRef.appendChild(ul);
+    });
     $('app-version').textContent = APP_VERSION;
     const now = new Date().getFullYear();
     [1, 2, 3, 4, 5, 6, 8, 10].forEach(function (n) {
@@ -106,7 +116,7 @@
     clear(sel);
     R.paths[p.rank].forEach(function (path) {
       path.levels.forEach(function (lv) {
-        const label = R.ranks[path.to].name + ' · ' + lv + ' AK' + (path.kind === 'loncat' ? ' (loncat dua jenjang)' : '');
+        const label = R.ranks[path.to].name + ' · ' + lv + ' AK' + (path.kind === 'loncat' ? ' (loncat dua jenjang)' : path.kind === 'pertama' ? ' (pengangkatan pertama)' : '');
         sel.appendChild(h('option', { value: path.to + '|' + path.kind + '|' + lv, text: label }));
       });
     });
@@ -125,8 +135,11 @@
     $('f-horizon').value = String(p.horizon);
     $('f-doktor').value = p.doktor;
     $('f-doktor-tahun').value = p.doktorTahun;
-    $('f-ijazah-baru').value = p.akIjazahBaru;
-    $('f-ijazah-klaim').value = p.akIjazahKlaim;
+    $('f-ijazah-mode').value = p.akIjazahMode;
+    $('f-ijazah-manual').value = p.akIjazahManual;
+    $('f-ikd-pend').checked = p.ikdPend;
+    $('f-konservatif').checked = p.konservatif;
+    $('f-ikd-abdi').checked = p.ikdAbdi;
     $('f-tetap').value = p.tetapSejak;
     $('f-bkd-sama').checked = p.bkdSamaPT;
     $('f-bkd-sejak').value = p.bkdSejak;
@@ -156,8 +169,11 @@
     }
     p.doktor = $('f-doktor').value;
     p.doktorTahun = $('f-doktor-tahun').value;
-    p.akIjazahBaru = $('f-ijazah-baru').value;
-    p.akIjazahKlaim = $('f-ijazah-klaim').value;
+    p.akIjazahMode = $('f-ijazah-mode').value;
+    p.akIjazahManual = $('f-ijazah-manual').value;
+    p.ikdPend = $('f-ikd-pend').checked;
+    p.konservatif = $('f-konservatif').checked;
+    p.ikdAbdi = $('f-ikd-abdi').checked;
     p.tetapSejak = $('f-tetap').value;
     p.bkdSamaPT = $('f-bkd-sama').checked;
     p.bkdSejak = $('f-bkd-sejak').value;
@@ -224,7 +240,8 @@
       fromThesis: $('w-thesis').checked,
       ownJournal: $('w-own').checked,
       specialIssue: $('w-special').checked,
-      preTMT: $('w-pretmt').checked
+      preTMT: $('w-pretmt').checked,
+      nonResearch: $('w-nonres').checked
     };
   }
 
@@ -244,6 +261,7 @@
     $('w-own').checked = w.ownJournal;
     $('w-special').checked = w.specialIssue;
     $('w-pretmt').checked = w.preTMT;
+    $('w-nonres').checked = w.nonResearch;
     updateWorkForm();
   }
 
@@ -343,7 +361,7 @@
   /* ---------- tampilan hasil ---------- */
 
   function chip(state_) {
-    const map = { ok: ['chip chip--ok', 'Terpenuhi'], no: ['chip chip--no', 'Belum'], warn: ['chip chip--warn', 'Menunggu'] };
+    const map = { ok: ['chip chip--ok', 'Terpenuhi'], no: ['chip chip--no', 'Belum'], warn: ['chip chip--warn', 'Menunggu'], check: ['chip chip--warn', 'Perlu dicek'], rec: ['chip chip--warn', 'Disarankan'] };
     const m = map[state_] || map.no;
     return h('span', { class: m[0], text: m[1] });
   }
@@ -394,7 +412,7 @@
 
   /* ---------- tab ---------- */
 
-  const TABS = ['simulasi', 'rujukan', 'simpan'];
+  const TABS = ['simulasi', 'carapakai', 'rujukan', 'simpan'];
   function activateTab(name, focus) {
     if (TABS.indexOf(name) < 0) name = 'simulasi';
     TABS.forEach(function (t) {
@@ -403,6 +421,7 @@
       tab.setAttribute('aria-selected', on ? 'true' : 'false');
       tab.tabIndex = on ? 0 : -1;
       $('tp-' + t).hidden = !on;
+      if (t === 'simulasi') show($('subnav'), on);
       if (on && focus) tab.focus();
     });
     try { history.replaceState(null, '', '#' + name); } catch (e) { /* abaikan */ }
@@ -448,7 +467,7 @@
   }
 
   function refLink(refId, text) {
-    return h('a', { class: 'info-link', href: '#rujukan', 'data-ref': refId, text: text || 'Selengkapnya di Rujukan juknis' });
+    return h('a', { class: 'info-link', href: '#rujukan', 'data-ref': refId, text: text || 'Selengkapnya di Rujukan' });
   }
 
   function initHelp() {
@@ -458,7 +477,7 @@
       const item = H[el.getAttribute('data-help')];
       if (!item) return;
       const id = 'help-' + (++n);
-      const labelEl = el.matches('legend, h2') ? el : el.querySelector('.field__label, .figure__label');
+      const labelEl = el.matches('legend, h2') ? el : el.querySelector('.field__label, .figure__label, label.check');
       if (!labelEl) return;
       const name = labelEl.textContent.trim();
       const btn = h('button', { type: 'button', class: 'info-btn', 'aria-expanded': 'false', 'aria-controls': id, 'aria-label': 'Penjelasan: ' + name, title: 'Penjelasan' });
@@ -468,7 +487,7 @@
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
         panel.hidden = !open;
       });
-      if (el.matches('legend, h2')) {
+      if (el.matches('legend, h2, .help-check')) {
         el.appendChild(btn);
         el.insertAdjacentElement('afterend', panel);
       } else {
@@ -501,11 +520,15 @@
     { anchor: 'h-jabatan', title: 'Isi jabatan dan target',
       text: 'Mulai di sini. Pilih status kepegawaian dan jabatan saat ini, isi AK kumulatif dan TMT dari SK terakhir, lalu pilih jabatan target.' },
     { anchor: 'h-doktor', title: 'Atur ijazah doktor',
-      text: 'Bila Anda sudah doktor atau sedang S3, isi di sini. Bila belum, lewati saja. AK ijazah dihitung dari nilai ijazah baru dikurangi yang pernah diklaim.' },
+      text: 'Bila Anda sudah doktor atau sedang S3, isi di sini. Bila belum, lewati saja. AK ijazah otomatis mengikuti jabatan saat lulus, misalnya 25 AK untuk Lektor.' },
     { anchor: 'h-skp', title: 'Pilih predikat SKP per tahun',
       text: 'Predikat tiap tahun menentukan AK Konversi dan sisa plafon untuk penelitian. Bila ragu, biarkan Baik.' },
+    { anchor: 'h-ikd', title: 'Cek Indikator Kinerja Dosen',
+      text: 'Lihat standar minimum IKD untuk jabatan tujuan. Komponen penelitian dihitung dari karya Anda; tandai komponen pendidikan, dan pengabdian bila Anda memakainya.' },
     { anchor: 'h-karya', title: 'Tambahkan karya penelitian',
       text: 'Masukkan karya yang sudah terbit sejak TMT dan yang Anda rencanakan, lengkap dengan tahun dan peran penulis.' },
+    { anchor: 'h-saran', title: 'Pakai alat perencanaan (opsional)',
+      text: 'Setelah data terisi, Saran rencana mengusulkan karya yang perlu ditambah, dan Bandingkan skenario menyandingkan beberapa rencana. Navigasi di bawah tab membawa Anda ke setiap bagian.' },
     { anchor: 'h-ringkasan', title: 'Baca hasilnya',
       text: 'Ringkasan menampilkan tanggal paling awal Anda siap diusulkan. Daftar syarat menunjukkan butir yang belum terpenuhi. Tombol ⓘ menjelaskan istilah dan menautkannya ke juknis.' }
   ];
@@ -574,6 +597,35 @@
     if (ev.key === 'Escape' && tourBox && !tourBox.hidden && tourBox.contains(document.activeElement)) endTour();
   });
 
+
+  /* ---------- navigasi bagian & tema ---------- */
+
+  function initSubnav() {
+    const links = Array.from(document.querySelectorAll('.subnav__link'));
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    links.forEach(function (a) {
+      a.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        const t = $(a.getAttribute('data-sec'));
+        if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+    if (!('IntersectionObserver' in window)) return;
+    const visible = {};
+    const io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+      const cur = links.find(function (a) { return visible[a.getAttribute('data-sec')]; });
+      links.forEach(function (a) { a.classList.toggle('is-active', a === cur); if (a === cur) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    }, { rootMargin: '-120px 0px -55% 0px' });
+    links.forEach(function (a) { const t = $(a.getAttribute('data-sec')); if (t) io.observe(t); });
+  }
+
+  function syncThemeButton() {
+    const dark = window.AKTheme && window.AKTheme.get() === 'dark';
+    $('btn-theme').setAttribute('aria-pressed', dark ? 'true' : 'false');
+    $('btn-theme-text').textContent = dark ? 'Mode terang' : 'Mode malam';
+  }
+
   /* ---------- kepala laporan cetak ---------- */
 
   function renderPrintHead(r) {
@@ -584,13 +636,51 @@
     const d = new Date();
     const tgl = d.getDate() + ' ' + E.monthLabel({ y: d.getFullYear(), m: d.getMonth() + 1 });
     box.appendChild(h('p', { class: 'print-head__kicker', text: 'Laporan Simulasi AK Dosen · ' + R.meta.source }));
+    if (r.mode === 'pertama') {
+      box.appendChild(h('p', { class: 'print-head__title', text: 'Pengangkatan pertama → ' + R.ranks[p.target].name + ' ' + p.targetAK + ' AK' }));
+      box.appendChild(h('p', { class: 'print-head__meta', text: status + (p.tetapSejak ? ' · dosen tetap sejak ' + E.monthLabel(E.parseDate(p.tetapSejak)) : '') + ' · dicetak ' + tgl }));
+      return;
+    }
     box.appendChild(h('p', { class: 'print-head__title', text: R.ranks[p.rank].name + ' ' + p.akSK + ' AK → ' + R.ranks[p.target].name + ' ' + p.targetAK + ' AK' + (p.kind === 'loncat' ? ' (dua jenjang)' : '') }));
     const tmt = E.parseDate(p.tmt);
     box.appendChild(h('p', { class: 'print-head__meta', text: status + ' · TMT ' + tmt.d + ' ' + E.monthLabel(tmt) + ' · dicetak ' + tgl }));
   }
 
+  function figLabel(id, text) {
+    const f = $(id).closest('.figure');
+    const l = f && f.querySelector('.figure__label');
+    if (l) l.textContent = text;
+  }
+
   function renderSummary(r) {
     const p = r.plan.profile;
+    if (r.mode === 'pertama') {
+      figLabel('fig-need', 'AK jabatan');
+      figLabel('fig-res', 'AK masa sebelum pengangkatan');
+      $('fig-need').textContent = fmt(r.need);
+      $('fig-need-sub').textContent = 'ditetapkan saat pengangkatan ' + R.ranks[p.target].name;
+      $('fig-res').textContent = r.readyDate ? '±' + fmt(r.akMasa) : '-';
+      $('fig-res-sub').textContent = r.readyDate ? r.akMasaMonths + ' bulan sampai usulan, dicatat di PAK Kumulatif' : 'dihitung setelah tanggal siap diketahui';
+      $('fig-ready').textContent = r.readyDate ? E.monthLabel(r.readyDate) : 'Belum';
+      $('fig-ready-sub').textContent = r.earliestByTime ? 'Paling cepat ' + E.monthLabel(r.earliestByTime) + ' (1 tahun Tridharma)' : 'Isi tanggal mulai dosen tetap';
+      const okN = r.checks.filter(function (c) { return c.state === 'ok'; }).length;
+      $('fig-checks').textContent = okN + '/' + r.checks.length;
+      $('fig-checks-sub').textContent = 'dinilai pada ' + E.monthLabel(r.evalDate);
+      const vv = $('verdict'); clear(vv);
+      if (r.readyDate) {
+        vv.appendChild(document.createTextNode('Pengangkatan pertama sebagai ' + R.ranks[p.target].name + ' bisa diusulkan mulai '));
+        vv.appendChild(h('strong', { text: E.monthLabel(r.readyDate) }));
+        vv.appendChild(document.createTextNode('.'));
+        const soft = r.checks.filter(function (c) { return c.state === 'check' || c.state === 'rec'; }).map(function (c) { return c.label.replace(/^Rekomendasi: /, ''); });
+        if (soft.length) vv.appendChild(document.createTextNode(' Masih perlu dicek: ' + soft.join('; ') + '.'));
+      } else {
+        const blocking = r.checks.filter(function (c) { return c.state === 'no'; }).map(function (c) { return c.label; });
+        vv.appendChild(document.createTextNode('Dalam ' + p.horizon + ' tahun, pengangkatan pertama belum memenuhi: ' + blocking.join('; ') + '.'));
+      }
+      return;
+    }
+    figLabel('fig-need', 'Kekurangan AK');
+    figLabel('fig-res', 'AK penelitian minimal');
     $('fig-need').textContent = fmt(r.need);
     $('fig-need-sub').textContent = 'dari ' + fmt(p.akSK) + ' ke ' + p.targetAK + ' AK';
     $('fig-res').textContent = fmt(r.needResearch);
@@ -627,7 +717,8 @@
           h('span', { class: 'checklist__label', text: c.label }),
           h('span', { class: 'checklist__detail', text: c.detail }))));
     });
-    $('syarat-meta').textContent = R.ranks[r.plan.profile.rank].name + ' → ' + R.ranks[r.plan.profile.target].name + (r.plan.profile.kind === 'loncat' ? ', dua jenjang' : '') + '. Dinilai pada akhir ' + r.evalYear + '.';
+    if (r.mode === 'pertama') $('syarat-meta').textContent = 'Pengangkatan pertama → ' + R.ranks[r.plan.profile.target].name + '. Dinilai pada ' + E.monthLabel(r.evalDate) + '.';
+    else $('syarat-meta').textContent = R.ranks[r.plan.profile.rank].name + ' → ' + R.ranks[r.plan.profile.target].name + (r.plan.profile.kind === 'loncat' ? ', dua jenjang' : '') + '. Dinilai pada akhir ' + r.evalYear + '.';
     $('sk-desc').textContent = R.syaratKhusus[r.key] || '';
   }
 
@@ -636,29 +727,53 @@
     show($('wrap-golongan'), p.status === 'PNS');
     const doc = p.doktor === 'rencana' || p.doktor === 'punya_belum';
     show($('wrap-doktor-tahun'), doc);
-    show($('wrap-ijazah-baru'), doc);
-    show($('wrap-ijazah-klaim'), doc);
+    show($('wrap-ijazah-mode'), doc && p.rank !== 'NJ');
+    show($('wrap-ijazah-manual'), doc && p.akIjazahMode === 'manual' && p.rank !== 'NJ');
+    if (p.rank !== 'NJ') $('opt-ijazah-auto').textContent = 'Otomatis: ' + fmt(r.eduAuto) + ' AK (' + R.ranks[p.rank].name + ')';
     $('doktor-note').textContent = r.eduAK > 0
-      ? 'Tambahan ' + fmt(r.eduAK) + ' AK dari ijazah doktor masuk pada ' + r.eduYear + ' (' + fmt(p.akIjazahBaru) + ' − ' + fmt(p.akIjazahKlaim) + '). Nilai ini tidak diatur dalam juknis 39/M/KEP/2026; pastikan dengan tim PAK.'
+      ? 'Tambahan ' + fmt(r.eduAK) + ' AK dari ijazah doktor masuk pada ' + r.eduYear + (p.akIjazahMode === 'manual' ? ' (isian sendiri).' : ', mengikuti jabatan ' + R.ranks[p.rank].name + ' saat lulus, sesuai ' + R.akPendidikanSrc + '.')
       : 'Tidak ada tambahan AK ijazah dalam proyeksi.';
-    const isP = p.target === 'P', loncat = p.kind === 'loncat';
+    const isP = p.target === 'P', loncat = p.kind === 'loncat', first = r.mode === 'pertama';
+    show($('wrap-aksk'), !first);
+    show($('wrap-tmt'), !first);
+    show($('wrap-bkd-sama'), !first);
+    show($('panel-doktor'), !first || p.target === 'L');
+    show($('panel-proyeksi'), !first);
+    show($('subnav-proyeksi'), !first);
+    const wt = $('wrap-tetap');
+    if (first && wt.parentNode !== $('wrap-aksk').parentNode) $('wrap-aksk').parentNode.insertBefore(wt, $('wrap-aksk'));
+    if (!first && wt.parentNode === $('wrap-aksk').parentNode) $('panel-extra').querySelector('.fields').appendChild(wt);
     show($('panel-extra'), isP || loncat);
-    show($('wrap-tetap'), isP);
+    show(wt, isP || first);
     show($('wrap-serdos'), isP);
     show($('wrap-tambahan'), isP);
     show($('wrap-plb'), loncat);
-    show($('wrap-bkd-sejak'), !p.bkdSamaPT);
-    $('masa-note').textContent = isP
+    show($('wrap-bkd-sejak'), !p.bkdSamaPT && !first);
+    const ikd = R.ikd[p.target];
+    $('ikd-lede').textContent = 'Standar minimum jabatan ' + R.ranks[p.target].name + ' (Kepmen 500/M/2024). Penuhi satu komponen pendidikan dan satu komponen penelitian atau pengabdian. Kampus boleh menetapkan target lebih tinggi.';
+    const pl = $('ikd-pend'); clear(pl);
+    ikd.pendidikan.forEach(function (x) { pl.appendChild(h('li', { text: x })); });
+    $('ikd-res').textContent = ikd.penelitian;
+    $('ikd-abdi').textContent = ikd.pengabdian;
+    const ic = r.checks.find(function (c) { return c.id === 'ikd'; });
+    const st = $('ikd-res-status');
+    st.className = 'ikd-status ' + (ic && ic.research.met ? 'is-ok' : 'is-no');
+    st.textContent = ic ? (ic.research.met ? 'Terpenuhi pada akhir ' + r.evalYear + ': ' : 'Belum terpenuhi pada akhir ' + r.evalYear + ': ') + ic.research.have + '.' : '';
+    $('masa-note').textContent = first
+      ? 'Pengangkatan pertama tidak memakai AK di SK atau TMT jabatan. Isi tanggal mulai menjadi dosen tetap; usulan paling cepat setelah 1 tahun Tridharma dan BKD 2 semester.'
+      : isP
       ? 'Target Profesor mensyaratkan 10 tahun sebagai dosen tetap. Isi tanggal mulai dosen tetap di bagian Syarat tambahan jalur ini.'
       : 'Masa kerja dosen tetap tidak disyaratkan untuk jalur ini; yang dihitung adalah masa dalam jabatan sejak TMT dan BKD 4 semester. Isian masa kerja muncul bila target Profesor.';
     const path = r.path;
-    $('f-target-hint').textContent = 'Minimal ' + Math.round(path.researchPct * 100) + '% AK penelitian, paling singkat ' + path.minYearsInRank + ' tahun dalam jabatan.';
+    $('f-target-hint').textContent = first ? (p.target === 'AA' ? 'Syarat: ijazah magister, 1 tahun Tridharma, SKP Baik. Tanpa syarat khusus publikasi.' : 'Syarat: ijazah doktor, 1 tahun Tridharma, SKP Baik, dan 1 artikel syarat khusus.') : 'Minimal ' + Math.round(path.researchPct * 100) + '% AK penelitian, paling singkat ' + path.minYearsInRank + ' tahun dalam jabatan.';
     const bar = $('sample-bar');
     bar.classList.toggle('is-own', !state.isSample);
     $('sample-text').textContent = state.isSample
-      ? 'Halaman ini terbuka dengan data contoh: seorang Lektor 200 AK menuju Lektor Kepala. Ganti isian dengan data Anda sendiri.'
+      ? 'Halaman ini terbuka dengan data contoh: seorang Lektor fiktif 230 AK menuju Lektor Kepala. Ganti isian dengan data Anda sendiri.'
       : 'Anda memakai data sendiri. Perubahan tersimpan otomatis di peramban ini.';
   }
+
+  const STATUS_LABEL = { rencana: 'rencana', dikirim: 'dikirim', diterima: 'diterima', terbit: 'terbit' };
 
   function renderWorks(r) {
     const body = $('works-body');
@@ -678,14 +793,16 @@
       if (w.type === 'jnas') sub.push('Sinta ' + w.rank);
       const akCell = h('td', { class: 'num', 'data-label': 'AK' }, h('span', { class: 'ak', text: fmt(v.ak) }));
       if (d && d.allowed < d.raw) akCell.appendChild(h('span', { class: 'ak-cut', text: 'diakui ' + fmt(d.allowed) }));
-      if (!d) akCell.appendChild(h('span', { class: 'ak-cut', text: 'di luar proyeksi' }));
+      const excluded = r.plan.profile.konservatif && !(w.status === 'diterima' || w.status === 'terbit');
+      if (excluded) akCell.appendChild(h('span', { class: 'ak-cut', text: 'tidak dihitung (konservatif)' }));
+      else if (!d && r.mode !== 'pertama') akCell.appendChild(h('span', { class: 'ak-cut', text: 'di luar proyeksi' }));
       const ex = E.skExclusions(w);
       let skCell;
       if (used.indexOf(w.uid) >= 0) skCell = h('td', { 'data-label': 'Syarat khusus' }, h('span', { class: 'chip chip--ok', text: 'Dipakai' }));
       else if (ex.length) skCell = h('td', { class: 'muted', 'data-label': 'Syarat khusus', text: 'Tidak bisa: ' + ex.join(', ') });
       else skCell = h('td', { class: 'muted', 'data-label': 'Syarat khusus', text: '—' });
-      body.appendChild(h('tr', { class: w.status === 'rencana' ? 'is-plan' : '' },
-        h('td', { class: 'cell-year' }, h('span', { text: String(w.year) }), h('span', { class: 'tag', text: w.status === 'rencana' ? 'rencana' : 'terbit' })),
+      body.appendChild(h('tr', { class: (w.status !== 'terbit' ? 'is-plan' : '') + (excluded ? ' is-excluded' : '') },
+        h('td', { class: 'cell-year' }, h('span', { text: String(w.year) }), h('span', { class: 'tag tag--' + w.status, text: STATUS_LABEL[w.status] })),
         h('td', { class: 'cell-title' }, h('span', { class: 'work-title', text: w.title }), h('span', { class: 'work-sub', text: sub.join(' · ') })),
         h('td', { 'data-label': 'Peran' }, h('span', { text: R.roles[w.role] }), h('span', { class: 'work-sub', text: w.authors + ' penulis · ' + v.shareLabel })),
         akCell,
@@ -698,6 +815,7 @@
   }
 
   function renderYears(r) {
+    if (r.mode === 'pertama') return;
     const body = $('years-body');
     clear(body);
     const targetAK = r.plan.profile.targetAK;
@@ -730,6 +848,7 @@
   }
 
   function renderChart(r, fixedWidth) {
+    if (r.mode === 'pertama') return;
     const svg = $('chart');
     Array.from(svg.childNodes).forEach(function (n) { if (n.nodeName !== 'title' && n.nodeName !== 'desc') svg.removeChild(n); });
     const W = fixedWidth || Math.max(320, Math.round(svg.parentNode.clientWidth || 720));
@@ -804,7 +923,119 @@
     renderYears(r);
     if (!$('tp-simulasi').hidden) renderChart(r);
     renderPrintHead(r);
+    if (r.plan.profile.konservatif) $('verdict').appendChild(document.createTextNode(' Proyeksi konservatif: hanya karya diterima atau terbit yang dihitung.'));
+    renderSaran();
+    renderScenarios();
     store();
+  }
+
+
+  /* ---------- saran rencana ---------- */
+
+  function planSig() { return JSON.stringify(state.plan); }
+  const WHY = { sk: 'memenuhi syarat khusus', ak: 'menambah AK dan AK penelitian', ikd: 'memenuhi IKD penelitian', rek: 'rekomendasi publikasi penulis pertama' };
+
+  function renderSaran() {
+    const out = $('saran-out');
+    const panel = $('panel-saran');
+    if (!state.saran || state.saran.sig !== planSig()) { show(out, false); panel.classList.add('is-empty'); return; }
+    panel.classList.remove('is-empty');
+    const d = state.saran.data;
+    clear(out);
+    show(out, true);
+    const label = function (dt) { return dt ? E.monthLabel(dt) : 'belum siap'; };
+    if (!d.items.length) {
+      out.appendChild(h('p', { class: 'saran-sum', text: d.baseline.readyDate
+        ? 'Rencana ini sudah siap pada ' + label(d.baseline.readyDate) + '. Tidak ada tambahan karya yang bisa mempercepatnya.'
+        : 'Tidak ada saran karya yang bisa membuat rencana ini siap.' }));
+    } else {
+      const sum = h('p', { class: 'saran-sum' });
+      sum.appendChild(document.createTextNode('Dengan ' + d.items.length + ' karya tambahan, siap diusulkan: '));
+      sum.appendChild(h('strong', { text: label(d.result.readyDate) }));
+      sum.appendChild(document.createTextNode(' (rencana sekarang: ' + label(d.baseline.readyDate) + ').'));
+      out.appendChild(sum);
+      const ul = h('ul', { class: 'saran-list' });
+      d.items.forEach(function (it) {
+        ul.appendChild(h('li', { class: 'saran-item' },
+          h('span', { class: 'saran-item__year', text: String(it.year) }),
+          h('span', {}, h('span', { text: it.label + ', ' + R.roles[it.role].toLowerCase() + ', 3 penulis' }), h('span', { class: 'saran-item__why', text: WHY[it.why] || '' })),
+          h('span', { class: 'saran-item__ak', text: '±' + fmt(it.ak) + ' AK' })));
+      });
+      out.appendChild(ul);
+      out.appendChild(h('div', { class: 'btn-row no-print' },
+        h('button', { type: 'button', class: 'btn btn--primary', text: 'Tambahkan ke daftar karya', onclick: addSaran })));
+    }
+    if (d.unfixable.length) out.appendChild(h('p', { class: 'note', text: 'Tidak bisa dibantu dengan karya: ' + d.unfixable.join('; ') + '.' }));
+    out.appendChild(h('p', { class: 'field__hint', text: 'Peran penulis dan jumlah penulis hanya asumsi. Karya saran berstatus Rencana; ubah atau hapus di daftar karya.' + (state.plan.profile.konservatif ? ' Proyeksi konservatif tidak menghitung karya berstatus Rencana.' : '') }));
+  }
+
+  function addSaran() {
+    if (!state.saran) return;
+    const n = state.saran.data.items.length;
+    state.saran.data.items.forEach(function (it) {
+      const w = Object.assign({}, it);
+      delete w.why; delete w.label; delete w.ak;
+      w.uid = 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      state.plan.works.push(w);
+    });
+    state.plan = E.sanitizePlan(state.plan);
+    state.saran = null;
+    markEdited();
+    render();
+    setMsg(n + ' karya saran ditambahkan ke daftar karya.');
+  }
+
+  /* ---------- skenario ---------- */
+
+  const SC_KEY = 'simulasi-ak:skenario:v1';
+  const SC_MAX = 5;
+  function loadScenarios() {
+    try {
+      const raw = JSON.parse(window.localStorage.getItem(SC_KEY) || '[]');
+      if (!Array.isArray(raw)) return [];
+      return raw.slice(0, SC_MAX).filter(function (x) { return x && typeof x === 'object'; }).map(function (x, i) {
+        return { id: String(x.id || ('s' + i)).slice(0, 40), name: String(x.name || ('Skenario ' + (i + 1))).slice(0, 60), plan: E.sanitizePlan(x.plan) };
+      });
+    } catch (e) { return []; }
+  }
+  function saveScenarios(list) {
+    try { window.localStorage.setItem(SC_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
+  }
+  let scenarios = loadScenarios();
+
+  function scenarioRow(name, plan, isCurrent, idx) {
+    const r = E.project(plan, { y: new Date().getFullYear() });
+    const p = r.plan.profile;
+    const jalur = (r.mode === 'pertama' ? 'Pengangkatan pertama' : R.ranks[p.rank].name + ' ' + fmt(p.akSK)) + ' → ' + R.ranks[p.target].name + ' ' + p.targetAK + (p.konservatif ? ' · konservatif' : '');
+    const last = r.years.length && r.mode !== 'pertama' ? fmt(r.years[r.years.length - 1].cumulative) : '-';
+    const no = r.checks.filter(function (c) { return c.state === 'no'; }).map(function (c) { return c.label; });
+    const actions = h('td', { class: 'actions no-print' });
+    if (!isCurrent) {
+      actions.appendChild(h('button', { type: 'button', class: 'link-btn', text: 'Muat', 'aria-label': 'Muat skenario ' + name, onclick: function () {
+        loadPlan(scenarios[idx].plan, 'Skenario “' + name + '” dimuat.');
+      } }));
+      actions.appendChild(h('button', { type: 'button', class: 'link-btn', text: 'Hapus', 'aria-label': 'Hapus skenario ' + name, onclick: function () {
+        scenarios.splice(idx, 1); saveScenarios(scenarios); renderScenarios();
+      } }));
+    }
+    return h('tr', { class: isCurrent ? 'skenario-cur' : '' },
+      h('th', { scope: 'row', text: name }),
+      h('td', { text: jalur }),
+      h('td', { class: 'strong', text: r.readyDate ? E.monthLabel(r.readyDate) : 'Belum' }),
+      h('td', { class: 'num', text: last }),
+      h('td', { text: no.length ? no.join('; ') : '-' }),
+      actions);
+  }
+
+  function renderScenarios() {
+    const body = $('skenario-body');
+    clear(body);
+    const panel = $('panel-skenario');
+    panel.classList.toggle('is-empty', scenarios.length === 0);
+    show($('skenario-wrap'), scenarios.length > 0);
+    if (!scenarios.length) return;
+    body.appendChild(scenarioRow('Rencana saat ini', state.plan, true, -1));
+    scenarios.forEach(function (sc, i) { body.appendChild(scenarioRow(sc.name, sc.plan, false, i)); });
   }
 
   /* ---------- impor / ekspor ---------- */
@@ -832,9 +1063,9 @@
   }
 
   function bind() {
-    ['f-status', 'f-golongan', 'f-rank', 'f-target', 'f-horizon', 'f-doktor', 'f-serdos', 'f-plb', 'f-tmt', 'f-tetap', 'f-bkd-sama', 'f-bkd-sejak']
+    ['f-status', 'f-golongan', 'f-rank', 'f-target', 'f-horizon', 'f-doktor', 'f-ijazah-mode', 'f-ikd-pend', 'f-ikd-abdi', 'f-konservatif', 'f-serdos', 'f-plb', 'f-tmt', 'f-tetap', 'f-bkd-sama', 'f-bkd-sejak']
       .forEach(function (id) { $(id).addEventListener('change', onProfileChange); });
-    ['f-aksk', 'f-doktor-tahun', 'f-ijazah-baru', 'f-ijazah-klaim']
+    ['f-aksk', 'f-doktor-tahun', 'f-ijazah-manual']
       .forEach(function (id) { $(id).addEventListener('input', onProfileChange); });
     R.syaratTambahanProfesor.forEach(function (st) { $('st-' + st.id).addEventListener('change', onProfileChange); });
 
@@ -843,8 +1074,26 @@
     $('work-form').addEventListener('submit', submitWork);
     $('w-cancel').addEventListener('click', resetWorkForm);
 
+    $('btn-saran').addEventListener('click', function () {
+      state.saran = { sig: planSig(), data: E.suggestPlan(state.plan, { y: new Date().getFullYear() }, { filler: $('f-saran-jenis').value }) };
+      renderSaran();
+    });
+    $('btn-skenario').addEventListener('click', function () {
+      if (scenarios.length >= SC_MAX) { $('skenario-msg').textContent = 'Paling banyak ' + SC_MAX + ' skenario. Hapus salah satu dulu.'; return; }
+      const name = $('f-skenario-nama').value.trim().slice(0, 60) || ('Skenario ' + (scenarios.length + 1));
+      scenarios.push({ id: 's' + Date.now().toString(36), name: name, plan: JSON.parse(planSig()) });
+      $('skenario-msg').textContent = saveScenarios(scenarios) ? 'Skenario “' + name + '” disimpan.' : 'Skenario dicatat untuk sesi ini, tetapi peramban tidak mengizinkan penyimpanan.';
+      $('f-skenario-nama').value = '';
+      renderScenarios();
+    });
     $('btn-clear').addEventListener('click', function () { loadPlan(E.emptyPlan(), ''); startTour(); });
     $('btn-tour').addEventListener('click', function () { startTour(); });
+    $('btn-tour2').addEventListener('click', function () { startTour(); });
+    $('btn-theme').addEventListener('click', function () {
+      if (!window.AKTheme) return;
+      window.AKTheme.set(window.AKTheme.get() === 'dark' ? 'light' : 'dark');
+      syncThemeButton();
+    });
     $('btn-sample').addEventListener('click', function () {
       loadPlan(window.AKSample(), 'Data contoh dimuat.');
       state.isSample = true;
@@ -883,8 +1132,11 @@
       window.print();
     });
     window.addEventListener('afterprint', function () { if (state.result && !$('tp-simulasi').hidden) renderChart(state.result); });
-    if (framed) show($('btn-download'), false);
     $('btn-download').addEventListener('click', function () {
+      if (framed) {
+        $('data-msg').textContent = 'Pratinjau ini tidak mengizinkan unduhan. Pakai Salin data rencana, atau buka aplikasi di situsnya sendiri (misalnya GitHub Pages) untuk mengunduh berkas.';
+        return;
+      }
       const blob = new Blob([planJSON()], { type: 'application/json' });
       const a = h('a', { href: URL.createObjectURL(blob), download: 'rencana-jabatan-akademik.json' });
       document.body.appendChild(a); a.click(); a.remove();
@@ -915,6 +1167,8 @@
   initHelp();
   bind();
   bindTabs();
+  initSubnav();
+  syncThemeButton();
   resetWorkForm();
   render();
 })();
