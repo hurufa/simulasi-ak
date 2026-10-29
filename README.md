@@ -101,4 +101,6 @@ Catatan keamanan dan privasi:
 - IKD: komponen penelitian dihitung dari daftar karya (3 tahun; buku Profesor 6 tahun); pendidikan/pengabdian dikonfirmasi pengguna.
 - Karya seni (Tabel 3) belum dimodelkan.
 
-Simulasi ini alat bantu perencanaan, bukan penetapan resmi.
+## Lisensi
+
+Kode aplikasi ini dirilis di bawah [Lisensi MIT](LICENSE). Hasil simulasi adalah alat bantu perencanaan, bukan penetapan angka kredit resmi.
