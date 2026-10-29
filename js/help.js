@@ -7,8 +7,8 @@
   'use strict';
   root.AKHelp = Object.freeze({
     aksk: {
-      text: 'Isi angka kredit kumulatif yang tertulis di SK atau PAK jabatan terakhir. Angka ini bisa lebih besar dari nilai dasar jabatan, misalnya 215 untuk Lektor. Kekurangan AK dan kewajiban AK penelitian dihitung dari angka ini.',
-      ref: 'ref-proporsi'
+      text: 'Isi TOTAL AK pada dokumen PAK jabatan terakhir (biasanya lampiran SK) atau di SISTER. Angkanya bisa lebih besar dari nilai terendah jabatan, misalnya 215 untuk Lektor. Bila belum ketemu, isi sementara nilai terendah jabatan Anda; hasilnya cenderung lebih lambat dari kenyataan.',
+      ref: 'ref-ak-kumulatif'
     },
     tmt: {
       text: 'Tanggal mulai berlakunya SK jabatan terakhir. Dipakai untuk syarat paling singkat 2 tahun dalam jabatan, dan untuk menghitung jumlah bulan pada tahun pertama proyeksi.',
@@ -65,7 +65,7 @@
       ref: 'ref-sk-larangan'
     },
     kekurangan: {
-      text: 'Nilai AK target dikurangi AK kumulatif di SK jabatan terakhir. Inilah jumlah AK yang harus dikumpulkan sejak TMT.',
+      text: 'Nilai AK target dikurangi AK kumulatif pada PAK jabatan terakhir. Inilah jumlah AK yang harus dikumpulkan sejak TMT.',
       ref: 'ref-proporsi'
     },
     penelitian: {

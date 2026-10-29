@@ -4,7 +4,7 @@
  */
 (function () {
   'use strict';
-  const APP_VERSION = '1.7.1';
+  const APP_VERSION = '1.7.2';
 
   const R = window.AKRules;
   const E = window.AKEngine;
@@ -381,7 +381,7 @@
       if (code === 'P' || idx === cur) return;
       $('f-rank').value = code;
       onProfileChange();
-      setMsg('Jabatan saat ini diubah ke ' + R.ranks[code].name + '. Periksa AK di SK dan TMT.');
+      setMsg('Jabatan saat ini diubah ke ' + R.ranks[code].name + '. Periksa AK kumulatif dan TMT.');
     }
   }
 
@@ -518,7 +518,7 @@
 
   const TOUR = [
     { anchor: 'h-jabatan', title: 'Isi jabatan dan target',
-      text: 'Mulai di sini. Pilih status kepegawaian dan jabatan saat ini, isi AK kumulatif dan TMT dari SK terakhir, lalu pilih jabatan target.' },
+      text: 'Mulai di sini. Pilih status kepegawaian dan jabatan saat ini, isi AK kumulatif dari PAK terakhir dan TMT dari SK terakhir, lalu pilih jabatan target.' },
     { anchor: 'h-doktor', title: 'Atur ijazah doktor',
       text: 'Bila Anda sudah doktor atau sedang S3, isi di sini. Bila belum, lewati saja. AK ijazah otomatis mengikuti jabatan saat lulus, misalnya 25 AK untuk Lektor.' },
     { anchor: 'h-skp', title: 'Pilih predikat SKP per tahun',
@@ -760,7 +760,7 @@
     st.className = 'ikd-status ' + (ic && ic.research.met ? 'is-ok' : 'is-no');
     st.textContent = ic ? (ic.research.met ? 'Terpenuhi pada akhir ' + r.evalYear + ': ' : 'Belum terpenuhi pada akhir ' + r.evalYear + ': ') + ic.research.have + '.' : '';
     $('masa-note').textContent = first
-      ? 'Pengangkatan pertama tidak memakai AK di SK atau TMT jabatan. Isi tanggal mulai menjadi dosen tetap; usulan paling cepat setelah 1 tahun Tridharma dan BKD 2 semester.'
+      ? 'Pengangkatan pertama tidak memakai AK kumulatif atau TMT jabatan. Isi tanggal mulai menjadi dosen tetap; usulan paling cepat setelah 1 tahun Tridharma dan BKD 2 semester.'
       : isP
       ? 'Target Profesor mensyaratkan 10 tahun sebagai dosen tetap. Isi tanggal mulai dosen tetap di bagian Syarat tambahan jalur ini.'
       : 'Masa kerja dosen tetap tidak disyaratkan untuk jalur ini; yang dihitung adalah masa dalam jabatan sejak TMT dan BKD 4 semester. Isian masa kerja muncul bila target Profesor.';
