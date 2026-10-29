@@ -7,7 +7,7 @@ Dipakai oleh dosen mana pun (PNS, PTN BH, PTS), dari Asisten Ahli sampai Profeso
 
 - AK Konversi per tahun dari predikat SKP × koefisien jabatan (Tabel 28), sebanding bulan pada tahun TMT.
 - Plafon AK tahunan (Tabel 27). AK penelitian yang melewati plafon ditandai *tidak diakui*.
-- Kebutuhan AK dari AK kumulatif di SK, dan proporsi minimal penelitian 35/40/45% (Bab D.2).
+- Kebutuhan AK dari AK kumulatif pada PAK jabatan terakhir (TOTAL AK; lampiran SK atau SISTER), dan proporsi minimal penelitian 35/40/45% (Bab D.2).
 - Pembagian AK antarpenulis (Keterangan *1 Tabel 2), termasuk kasus penulis pertama bukan korespondensi.
 - Batas kepatutan: prosiding/seminar 25%, jurnal tidak terakreditasi 10%, populer + laporan 5%; batas karya per tahun.
 - Syarat khusus tiap jalur (Tabel 4, 5, 6, 14, 15) beserta pengecualian: penulis tunggal, hasil tesis/disertasi,
@@ -32,6 +32,7 @@ Dipakai oleh dosen mana pun (PNS, PTN BH, PTS), dari Asisten Ahli sampai Profeso
 
 ## Riwayat versi
 
+- **1.7.2** (30 Okt 2026): isian AK kumulatif diperjelas (TOTAL AK pada PAK/SISTER, nilai sementara bila belum ketemu); entri Rujukan "AK kumulatif dan PAK" (Juknis Bab C, hlm. 11–12, 97).
 - **1.7.1** (30 Okt 2026): tombol survei menaut ke Form terpublikasi (tautan pendek); lisensi MIT ditambahkan.
 - **1.7.0** (29 Okt 2026): tab Cara pakai; tab disingkat; navigasi bagian; Saran rencana dan Skenario dikelompokkan sebagai Alat perencanaan; mode malam (`js/theme.js`, token gelap di `styles.css`).
 - **1.6.1** (29 Okt 2026): nama dokumen acuan diberi bulan terbit (LLDIKTI VII Oktober 2026; Ditjen Dikti Agustus 2026).

@@ -126,9 +126,9 @@
             </select>
           </div>
           <div class="field" id="wrap-aksk" data-help="aksk">
-            <label class="field__label" for="f-aksk">AK kumulatif di SK</label>
+            <label class="field__label" for="f-aksk">AK kumulatif (PAK terakhir)</label>
             <input id="f-aksk" type="number" inputmode="decimal" min="0" step="0.01">
-            <span class="field__hint">Angka di SK/PAK jabatan terakhir, bukan nilai dasar jabatan.</span>
+            <span class="field__hint">TOTAL AK di PAK (lampiran SK) atau SISTER. Belum ketemu? Isi sementara nilai terendah jabatan Anda, misalnya Lektor 200.</span>
           </div>
           <div class="field" id="wrap-tmt" data-help="tmt">
             <label class="field__label" for="f-tmt">TMT jabatan terakhir</label>
@@ -420,7 +420,7 @@
       <article class="howto__card">
         <h3 class="howto__title">Kapan saya siap naik jabatan?</h3>
         <ol>
-          <li>Di <strong>Simulasi › Data diri</strong>, pilih status kepegawaian dan jabatan saat ini, isi AK kumulatif dan TMT dari SK terakhir, lalu pilih target.</li>
+          <li>Di <strong>Simulasi › Data diri</strong>, pilih status kepegawaian dan jabatan saat ini, isi AK kumulatif dari PAK terakhir dan TMT dari SK terakhir, lalu pilih target.</li>
           <li>Atur ijazah doktor dan predikat SKP per tahun bila perlu.</li>
           <li>Di <strong>Karya</strong>, masukkan karya yang sudah terbit dan yang direncanakan.</li>
           <li>Baca kartu <strong>Siap diusulkan</strong> dan <strong>Daftar syarat</strong> di bagian Hasil. Butir “Belum” adalah penghambat; “Perlu dicek” perlu Anda pastikan sendiri.</li>
@@ -495,6 +495,15 @@
       <details class="ref" id="ref-skp-unsur" data-keywords="pengabdian penunjang pendidikan pengajaran skp bkd konversi unsur">
         <summary>Pendidikan, pengabdian, dan penunjang <span class="ref__src">Juknis · Bab C · hlm. 8–10</span></summary>
         <p>Sejak 1 Januari 2023, pelaksanaan pendidikan/pengajaran, pengabdian kepada masyarakat, dan penunjang dituangkan dalam SKP per semester berdasarkan rekomendasi asesor BKD. Predikat SKP dikonversi menjadi AK Konversi. Pelaksanaan penelitian dinilai terpisah per luaran sebagai AK Prestasi (Tabel 2).</p>
+      </details>
+      <details class="ref" id="ref-ak-kumulatif" data-keywords="ak kumulatif pak penetapan angka kredit sk lampiran sister total ak penyetaraan integrasi tidak ada">
+        <summary>AK kumulatif dan PAK <span class="ref__src">Juknis · Bab C · hlm. 11–12, 97</span></summary>
+        <p>Kenaikan jabatan mengacu AK Kumulatif yang ditetapkan untuk jabatan akademik terakhir (Bab C butir e.3). Angkanya tercantum sebagai <strong>TOTAL AK</strong> pada dokumen Penetapan Angka Kredit (PAK) Kumulatif, yang biasanya menjadi lampiran SK jabatan, bukan di badan SK.</p>
+        <ul>
+          <li>Dosen PNS: AK Integrasi (kinerja s.d. 31 Desember 2022) + AK Konversi + AK pendidikan formal + AK Prestasi.</li>
+          <li>Dosen tetap PTN BH dan PTS: AK Penyetaraan (kinerja s.d. 31 Desember 2022) + AK Konversi + AK pendidikan formal + AK Prestasi. Dokumen disusun pimpinan perguruan tinggi lalu diverifikasi dan divalidasi Kepala LLDIKTI.</li>
+        </ul>
+        <p>Cari di lampiran SK jabatan terakhir atau di SISTER (riwayat jabatan fungsional, Layanan PAK). Bila tidak ada di keduanya, tanyakan ke bagian kepegawaian kampus atau LLDIKTI. Sementara itu, isi nilai terendah jabatan Anda (Asisten Ahli 150, Lektor 200, Lektor Kepala 400): bila AK Anda sebenarnya lebih besar, kekurangan AK terhitung lebih besar sehingga tanggal siap diusulkan cenderung lebih lambat dari kenyataan.</p>
       </details>
       <details class="ref" id="ref-proporsi" data-keywords="proporsi penelitian 35 40 45 persen kekurangan">
         <summary>Proporsi AK penelitian <span class="ref__src">Juknis · Bab D.2 · hlm. 25–27</span></summary>
@@ -639,6 +648,11 @@
   <section class="panel panel--full changelog" id="riwayat" aria-labelledby="h-riwayat">
     <h2 id="h-riwayat" class="section-title">Riwayat versi</h2>
     <ol class="changelog__list">
+      <li><p class="changelog__ver">1.7.2 <span>30 Oktober 2026</span></p>
+        <ul>
+          <li>Isian AK kumulatif diperjelas: angka diambil dari TOTAL AK pada PAK (lampiran SK) atau SISTER, dengan nilai sementara bila PAK belum ditemukan.</li>
+          <li>Entri Rujukan baru <strong>AK kumulatif dan PAK</strong> (Juknis Bab C, hlm. 11–12 dan 97).</li>
+        </ul></li>
       <li><p class="changelog__ver">1.7.1 <span>30 Oktober 2026</span></p>
         <ul>
           <li>Tombol survei menaut ke Form yang sudah dipublikasikan (tautan pendek).</li>
