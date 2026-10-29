@@ -15,20 +15,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Poppins:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/styles.css">
+<script src="js/theme.js"></script>
 </head>
 <body>
 <a class="skip" href="#tp-simulasi">Lewati ke isi</a>
 
 <header class="masthead">
   <div class="masthead__inner">
-    <p class="eyebrow">Juknis Kepmendiktisaintek No. 39/M/KEP/2026</p>
+    <div class="topbar">
+      <p class="eyebrow">Juknis Kepmendiktisaintek No. 39/M/KEP/2026</p>
+      <button type="button" class="theme-btn no-print" id="btn-theme" aria-pressed="false"><span class="theme-btn__ic" aria-hidden="true"></span><span id="btn-theme-text">Mode malam</span></button>
+    </div>
     <h1 class="title">Simulasi AK Dosen</h1>
     <p class="masthead__lede">Hitung kapan Anda siap naik jabatan akademik: angka kredit per tahun, plafon, proporsi penelitian, dan syarat khusus, dalam satu rencana.</p>
+    <p class="masthead__note">Hasilnya alat bantu perencanaan, bukan penetapan resmi. Beberapa angka memakai tafsir juknis; baca <a href="#rujukan" data-ref="asumsi">asumsi simulasi</a> sebelum memakai hasilnya.</p>
     <ol class="ladder" id="ladder" aria-label="Jenjang jabatan akademik. Pilih jenjang untuk mengubah jabatan saat ini atau target."></ol>
     <p class="ladder__hint">Pilih jenjang di bawah jabatan Anda untuk mengganti jabatan saat ini, atau jenjang di atasnya untuk menjadikannya target.</p>
   </div>
   <div class="notice" id="sample-bar">
-    <p id="sample-text">Halaman ini terbuka dengan <strong>data contoh</strong>: seorang Lektor 200 AK menuju Lektor Kepala. Ganti isian dengan data Anda sendiri.</p>
+    <p id="sample-text">Halaman ini terbuka dengan <strong>data contoh</strong>: seorang Lektor fiktif 230 AK menuju Lektor Kepala. Ganti isian dengan data Anda sendiri.</p>
     <div class="btn-row">
       <button type="button" class="btn btn--primary" id="btn-clear">Mulai dari kosong</button>
       <button type="button" class="btn btn--secondary" id="btn-sample">Muat contoh</button>
@@ -40,8 +45,16 @@
 <nav class="tabs" aria-label="Bagian aplikasi">
   <div class="tabs__list" role="tablist">
     <button type="button" role="tab" class="tab" id="tab-simulasi" aria-controls="tp-simulasi" aria-selected="true">Simulasi</button>
-    <button type="button" role="tab" class="tab" id="tab-rujukan" aria-controls="tp-rujukan" aria-selected="false" tabindex="-1">Rujukan juknis</button>
-    <button type="button" role="tab" class="tab" id="tab-simpan" aria-controls="tp-simpan" aria-selected="false" tabindex="-1">Simpan &amp; cetak</button>
+    <button type="button" role="tab" class="tab" id="tab-carapakai" aria-controls="tp-carapakai" aria-selected="false" tabindex="-1">Cara pakai</button>
+    <button type="button" role="tab" class="tab" id="tab-rujukan" aria-controls="tp-rujukan" aria-selected="false" tabindex="-1">Rujukan</button>
+    <button type="button" role="tab" class="tab" id="tab-simpan" aria-controls="tp-simpan" aria-selected="false" tabindex="-1">Simpan</button>
+  </div>
+  <div class="subnav" id="subnav" aria-label="Bagian simulasi">
+    <a class="subnav__link" href="#ringkasan" data-sec="ringkasan">Hasil</a>
+    <a class="subnav__link" href="#g-data" data-sec="g-data">Data diri</a>
+    <a class="subnav__link" href="#g-karya" data-sec="g-karya">Karya</a>
+    <a class="subnav__link" href="#panel-proyeksi" data-sec="panel-proyeksi" id="subnav-proyeksi">Proyeksi</a>
+    <a class="subnav__link" href="#g-alat" data-sec="g-alat">Alat perencanaan</a>
   </div>
 </nav>
 
@@ -85,7 +98,8 @@
     </div>
   </section>
 
-  <div class="form-stack">
+
+  <div class="form-stack" id="g-data">
 
       <section class="panel" aria-labelledby="h-jabatan">
         <h2 id="h-jabatan" class="section-title"><span class="step" aria-hidden="true"></span>Jabatan dan target</h2>
@@ -105,17 +119,18 @@
           <div class="field">
             <label class="field__label" for="f-rank">Jabatan saat ini</label>
             <select id="f-rank">
+              <option value="NJ">Belum punya jabatan akademik</option>
               <option value="AA">Asisten Ahli</option>
               <option value="L">Lektor</option>
               <option value="LK">Lektor Kepala</option>
             </select>
           </div>
-          <div class="field" data-help="aksk">
+          <div class="field" id="wrap-aksk" data-help="aksk">
             <label class="field__label" for="f-aksk">AK kumulatif di SK</label>
             <input id="f-aksk" type="number" inputmode="decimal" min="0" step="0.01">
             <span class="field__hint">Angka di SK/PAK jabatan terakhir, bukan nilai dasar jabatan.</span>
           </div>
-          <div class="field" data-help="tmt">
+          <div class="field" id="wrap-tmt" data-help="tmt">
             <label class="field__label" for="f-tmt">TMT jabatan terakhir</label>
             <input id="f-tmt" type="date">
           </div>
@@ -127,10 +142,10 @@
           <div class="field" data-help="horizon">
             <label class="field__label" for="f-horizon">Proyeksi sampai</label>
             <select id="f-horizon"></select>
-            <span class="field__hint">Proyeksi dimulai dari tahun TMT.</span>
+            <span class="field__hint">Proyeksi dimulai dari tahun TMT, atau tahun mulai dosen tetap untuk pengangkatan pertama.</span>
           </div>
         </div>
-        <div class="checks-col">
+        <div class="checks-col" id="wrap-bkd-sama">
           <label class="check"><input type="checkbox" id="f-bkd-sama"><span>BKD 4 semester terakhir saya di perguruan tinggi yang sama dengan sekarang</span></label>
         </div>
         <div class="fields" id="wrap-bkd-sejak">
@@ -143,7 +158,7 @@
         <p class="note" id="masa-note"></p>
       </section>
 
-      <section class="panel" aria-labelledby="h-doktor">
+      <section class="panel" id="panel-doktor" aria-labelledby="h-doktor">
         <h2 id="h-doktor" class="section-title"><span class="step" aria-hidden="true"></span>Ijazah doktor</h2>
         <div class="fields">
           <div class="field field--wide">
@@ -159,14 +174,17 @@
             <label class="field__label" for="f-doktor-tahun">Tahun lulus</label>
             <input id="f-doktor-tahun" type="number" inputmode="numeric" min="1970" max="2100" step="1">
           </div>
-          <div class="field" id="wrap-ijazah-baru" data-help="ijazah">
-            <label class="field__label" for="f-ijazah-baru">AK ijazah doktor</label>
-            <input id="f-ijazah-baru" type="number" inputmode="decimal" min="0" step="0.5">
+          <div class="field" id="wrap-ijazah-mode" data-help="ijazah">
+            <label class="field__label" for="f-ijazah-mode">Nilai AK ijazah doktor</label>
+            <select id="f-ijazah-mode">
+              <option value="otomatis" id="opt-ijazah-auto">Otomatis sesuai jabatan</option>
+              <option value="manual">Isi sendiri</option>
+            </select>
           </div>
-          <div class="field" id="wrap-ijazah-klaim">
-            <label class="field__label" for="f-ijazah-klaim">AK ijazah sebelumnya</label>
-            <input id="f-ijazah-klaim" type="number" inputmode="decimal" min="0" step="0.5">
-            <span class="field__hint">AK ijazah yang sudah diklaim, misalnya S2 saat pengajuan Asisten Ahli.</span>
+          <div class="field" id="wrap-ijazah-manual">
+            <label class="field__label" for="f-ijazah-manual">AK ijazah (isian sendiri)</label>
+            <input id="f-ijazah-manual" type="number" inputmode="decimal" min="0" step="0.5">
+            <span class="field__hint">Pakai bila tim PAK menetapkan nilai lain.</span>
           </div>
         </div>
         <p class="note" id="doktor-note"></p>
@@ -175,8 +193,30 @@
       <section class="panel" aria-labelledby="h-skp">
         <h2 id="h-skp" class="section-title" data-help="skp"><span class="step" aria-hidden="true"></span>Predikat SKP per tahun</h2>
         <p class="lede">AK Konversi tiap tahun dihitung dari persentase predikat dikali koefisien jabatan. Predikat juga menentukan plafon AK penelitian tahun itu.</p>
-        <p class="callout"><span>Pendidikan/pengajaran, pengabdian kepada masyarakat, dan penunjang tidak diinput per kegiatan. Sejak 1 Januari 2023 ketiganya dinilai lewat BKD dan SKP, lalu menjadi AK Konversi di sini. Hanya penelitian yang dinilai per karya. <a class="info-link" href="#rujukan" data-ref="ref-skp-unsur">Lihat di Rujukan juknis</a></span></p>
+        <p class="callout"><span>Pendidikan/pengajaran, pengabdian kepada masyarakat, dan penunjang tidak diinput per kegiatan. Sejak 1 Januari 2023 ketiganya dinilai lewat BKD dan SKP, lalu menjadi AK Konversi di sini. Hanya penelitian yang dinilai per karya. <a class="info-link" href="#rujukan" data-ref="ref-skp-unsur">Lihat di Rujukan</a></span></p>
         <div class="skp-grid" id="skp-grid"></div>
+      </section>
+
+      <section class="panel" id="panel-ikd" aria-labelledby="h-ikd">
+        <h2 id="h-ikd" class="section-title" data-help="ikd"><span class="step" aria-hidden="true"></span>Indikator Kinerja Dosen (IKD)</h2>
+        <p class="lede" id="ikd-lede"></p>
+        <div class="ikd-grid">
+          <div class="ikd-col">
+            <h3 class="mini-title">Pendidikan · pilih salah satu</h3>
+            <ul class="ikd-list" id="ikd-pend"></ul>
+            <label class="check"><input type="checkbox" id="f-ikd-pend"><span>Salah satu sudah atau akan terpenuhi</span></label>
+          </div>
+          <div class="ikd-col">
+            <h3 class="mini-title">Penelitian · dihitung dari karya</h3>
+            <p class="ikd-text" id="ikd-res"></p>
+            <p class="ikd-status" id="ikd-res-status"></p>
+          </div>
+          <div class="ikd-col">
+            <h3 class="mini-title">Atau pengabdian</h3>
+            <p class="ikd-text" id="ikd-abdi"></p>
+            <label class="check"><input type="checkbox" id="f-ikd-abdi"><span>Sudah atau akan terpenuhi</span></label>
+          </div>
+        </div>
       </section>
 
       <section class="panel" id="panel-extra" aria-labelledby="h-extra">
@@ -199,9 +239,13 @@
       </section>
   </div>
 
-  <section class="panel panel--full" aria-labelledby="h-karya">
+  <section class="panel panel--full" id="g-karya" aria-labelledby="h-karya">
     <h2 id="h-karya" class="section-title"><span class="step" aria-hidden="true"></span>Karya penelitian</h2>
     <p class="lede">Masukkan karya yang sudah terbit sejak TMT dan karya yang Anda rencanakan. Simulasi menempatkan setiap karya di tahun terbitnya, lalu memotongnya dengan plafon tahunan dan batas kepatutan.</p>
+    <div class="mode-switch">
+      <label class="check"><input type="checkbox" id="f-konservatif"><span><strong>Proyeksi konservatif</strong>: hitung hanya karya yang sudah diterima atau terbit</span></label>
+      <p class="field__hint">Bandingkan dengan proyeksi biasa untuk melihat seberapa jauh tanggal siap bergantung pada karya yang belum pasti.</p>
+    </div>
 
     <form class="work-form" id="work-form" novalidate>
       <div class="fields">
@@ -220,8 +264,10 @@
         <div class="field">
           <label class="field__label" for="w-status">Status</label>
           <select id="w-status">
-            <option value="terbit">Sudah terbit</option>
             <option value="rencana">Rencana</option>
+            <option value="dikirim">Dikirim ke jurnal / penerbit</option>
+            <option value="diterima">Diterima (accepted)</option>
+            <option value="terbit">Sudah terbit</option>
           </select>
         </div>
         <div class="field" id="wrap-w-quartile">
@@ -267,6 +313,7 @@
         <label class="check"><input type="checkbox" id="w-own"><span>Terbit di jurnal perguruan tinggi sendiri</span></label>
         <label class="check"><input type="checkbox" id="w-special"><span>Edisi khusus hasil seminar</span></label>
         <label class="check"><input type="checkbox" id="w-pretmt"><span>Terbit dalam 6 bulan sebelum TMT</span></label>
+        <label class="check"><input type="checkbox" id="w-nonres"><span>Literature review atau short communication/letter</span></label>
       </fieldset>
       <div class="work-form__foot">
         <p class="calc" id="w-calc" aria-live="polite"></p>
@@ -289,7 +336,7 @@
     <p class="empty" id="works-empty" hidden>Belum ada karya. Tambahkan karya yang sudah terbit sejak TMT atau yang Anda rencanakan.</p>
   </section>
 
-  <section class="panel panel--full" aria-labelledby="h-proyeksi">
+  <section class="panel panel--full" id="panel-proyeksi" aria-labelledby="h-proyeksi">
     <h2 id="h-proyeksi" class="section-title" data-help="proyeksi"><span class="step" aria-hidden="true"></span>Proyeksi per tahun</h2>
     <p class="lede">Kolom menunjukkan AK kumulatif pada akhir setiap tahun, tersusun dari AK Konversi, AK penelitian yang diakui, dan AK ijazah. Garis putus-putus adalah target. Kolom Kurang menunjukkan sisa AK menuju target pada akhir tahun itu.</p>
     <div class="chart-wrap">
@@ -321,19 +368,117 @@
     <ul class="warnings" id="warnings"></ul>
   </section>
 
+  <div class="group" id="g-alat">
+  <div class="group-head">
+    <p class="eyebrow">Alat perencanaan</p>
+    <p class="group-head__lede">Opsional. Pakai setelah data diri dan karya terisi: minta saran karya yang perlu ditambah, atau simpan beberapa rencana untuk dibandingkan.</p>
+  </div>
+
+  <section class="panel panel--full" id="panel-saran" aria-labelledby="h-saran">
+    <h2 id="h-saran" class="section-title" data-help="saran">Saran rencana</h2>
+    <p class="lede">Simulasi mencoba menambahkan karya hipotetis, mulai dari artikel syarat khusus lalu karya pengisi AK, sampai semua syarat yang bisa dibantu penelitian terpenuhi secepat mungkin (paling banyak 3 karya per tahun). Hasilnya satu contoh kombinasi, bukan satu-satunya cara.</p>
+    <div class="saran-controls no-print">
+      <div class="field">
+        <label class="field__label" for="f-saran-jenis">Karya pengisi AK</label>
+        <select id="f-saran-jenis">
+          <option value="int">Jurnal internasional bereputasi</option>
+          <option value="nas">Jurnal nasional terakreditasi (Sinta 2)</option>
+        </select>
+      </div>
+      <button type="button" class="btn btn--primary" id="btn-saran">Buat saran</button>
+    </div>
+    <div id="saran-out" class="saran-out" hidden></div>
+  </section>
+
+  <section class="panel panel--full" id="panel-skenario" aria-labelledby="h-skenario">
+    <h2 id="h-skenario" class="section-title" data-help="skenario">Bandingkan skenario</h2>
+    <p class="lede">Simpan rencana saat ini sebagai skenario, ubah isiannya, lalu bandingkan hasilnya. Contoh: lulus S3 2027 vs 2028, atau SKP Baik vs Sangat Baik. Skenario tersimpan di peramban ini (paling banyak 5).</p>
+    <div class="saran-controls no-print">
+      <div class="field">
+        <label class="field__label" for="f-skenario-nama">Nama skenario</label>
+        <input id="f-skenario-nama" type="text" maxlength="60" autocomplete="off" placeholder="mis. Lulus S3 2027">
+      </div>
+      <button type="button" class="btn btn--secondary" id="btn-skenario">Simpan sebagai skenario</button>
+    </div>
+    <p class="status-msg" id="skenario-msg" role="status"></p>
+    <div class="table-wrap" id="skenario-wrap" hidden>
+      <table class="table" id="skenario-table">
+        <thead><tr><th scope="col">Skenario</th><th scope="col">Jalur</th><th scope="col">Siap diusulkan</th><th scope="col" class="num">AK akhir proyeksi</th><th scope="col">Syarat belum terpenuhi</th><th scope="col" class="no-print"><span class="sr-only">Aksi</span></th></tr></thead>
+        <tbody id="skenario-body"></tbody>
+      </table>
+    </div>
+  </section>
+  </div>
+
+</div>
+
+<div class="tabpanel" role="tabpanel" id="tp-carapakai" aria-labelledby="tab-carapakai" tabindex="0" hidden>
+  <section class="panel panel--full" aria-labelledby="h-carapakai">
+    <h2 id="h-carapakai" class="section-title">Cara pakai</h2>
+    <p class="lede">Aplikasi ini menghitung kapan Anda bisa mengusulkan kenaikan jabatan akademik dan syarat apa yang masih kurang. Semua isian tersimpan di peramban Anda; tidak ada yang dikirim ke server.</p>
+    <div class="howto">
+      <article class="howto__card">
+        <h3 class="howto__title">Kapan saya siap naik jabatan?</h3>
+        <ol>
+          <li>Di <strong>Simulasi › Data diri</strong>, pilih status kepegawaian dan jabatan saat ini, isi AK kumulatif dan TMT dari SK terakhir, lalu pilih target.</li>
+          <li>Atur ijazah doktor dan predikat SKP per tahun bila perlu.</li>
+          <li>Di <strong>Karya</strong>, masukkan karya yang sudah terbit dan yang direncanakan.</li>
+          <li>Baca kartu <strong>Siap diusulkan</strong> dan <strong>Daftar syarat</strong> di bagian Hasil. Butir “Belum” adalah penghambat; “Perlu dicek” perlu Anda pastikan sendiri.</li>
+        </ol>
+      </article>
+      <article class="howto__card">
+        <h3 class="howto__title">Karya apa yang perlu saya tambah?</h3>
+        <ol>
+          <li>Lengkapi data diri dan karya yang sudah ada.</li>
+          <li>Buka <strong>Alat perencanaan › Saran rencana</strong>, pilih jenis karya pengisi, lalu klik <strong>Buat saran</strong>.</li>
+          <li>Periksa usulan per tahun. Bila cocok, klik <strong>Tambahkan ke daftar karya</strong>, lalu sesuaikan jurnal dan peran penulisnya.</li>
+          <li>Centang <strong>Proyeksi konservatif</strong> di bagian Karya untuk melihat hasil yang hanya menghitung karya diterima atau terbit.</li>
+        </ol>
+      </article>
+      <article class="howto__card">
+        <h3 class="howto__title">Bandingkan dua rencana</h3>
+        <ol>
+          <li>Di <strong>Alat perencanaan › Bandingkan skenario</strong>, beri nama lalu simpan rencana saat ini.</li>
+          <li>Ubah satu hal, misalnya tahun lulus S3 atau predikat SKP.</li>
+          <li>Simpan lagi dengan nama lain. Tabel menampilkan keduanya berdampingan.</li>
+          <li>Klik <strong>Muat</strong> untuk kembali ke skenario mana pun.</li>
+        </ol>
+      </article>
+    </div>
+    <h3 class="mini-title howto__more">Tips lain</h3>
+    <ul class="howto__tips">
+      <li><strong>Belum punya jabatan akademik?</strong> Pilih itu di Jabatan saat ini, lalu isi tanggal mulai dosen tetap. Aplikasi beralih ke mode pengangkatan pertama.</li>
+      <li>Tombol <strong>ⓘ</strong> di dekat label menjelaskan istilah dan menautkannya ke aturan di tab Rujukan. Label di kanan setiap aturan menyebut dokumen dan halamannya.</li>
+      <li>Di tab <strong>Simpan</strong>, buat laporan PDF atau simpan berkas .json untuk membuka rencana di perangkat lain.</li>
+      <li>Tombol <strong>Mode malam</strong> di kanan atas mengganti tampilan terang atau gelap.</li>
+    </ul>
+    <div class="btn-row">
+      <button type="button" class="btn btn--secondary" id="btn-tour2">Buka panduan langkah awal</button>
+    </div>
+  </section>
 </div>
 
 <div class="tabpanel" role="tabpanel" id="tp-rujukan" aria-labelledby="tab-rujukan" tabindex="0" hidden>
   <section class="panel panel--full" id="rujukan" aria-labelledby="h-rujukan">
-    <h2 id="h-rujukan" class="section-title">Rujukan juknis</h2>
+    <h2 id="h-rujukan" class="section-title">Rujukan</h2>
     <div class="field search">
       <label class="field__label" for="ref-search">Cari aturan</label>
       <input id="ref-search" type="search" autocomplete="off" placeholder="mis. plafon, prosiding, disertasi, loncat">
     </div>
+    <div class="doc-list">
+      <h3 class="mini-title">Dokumen acuan</h3>
+      <ol>
+        <li><strong>Juknis</strong>: Kepmendiktisaintek No. 39/M/KEP/2026 tentang Petunjuk Teknis Layanan Pengembangan Profesi dan Karier Dosen. Sumber utama.</li>
+        <li><strong>Kepmen 500</strong>: Kepmendikbudristek No. 500/M/2024 tentang Standar Minimum Indikator Kinerja Dosen dan Kriteria Publikasi Ilmiah. Dipakai untuk IKD.</li>
+        <li><strong>Paparan LLDIKTI VII (Oktober 2026)</strong>: Pengajuan Usulan Jabatan Akademik Dosen di LLDIKTI 7 (Asisten Ahli dan Lektor), Timja SDPT LLDIKTI Wilayah VII, 27 Oktober 2026. Dipakai untuk AK pendidikan formal.</li>
+        <li><strong>Paparan Ditjen Dikti (Agustus 2026)</strong>: Sosialisasi Usulan Kenaikan JAD Lektor Kepala dan Profesor Gelombang 2 Tahun 2026, Direktorat Sumber Daya, Agustus 2026. Dipakai untuk kesiapan berkas, larangan literature review, dan ambang IF.</li>
+      </ol>
+      <p class="micro">Label di kanan setiap judul aturan menunjukkan dokumen, bagian, dan halaman yang dipakai. Halaman juknis mengikuti nomor yang tercetak di lampiran; di berkas PDF, tambahkan 3.</p>
+    </div>
     <p class="empty" id="ref-empty" hidden>Tidak ada aturan yang cocok dengan kata itu.</p>
     <div class="refs" id="refs">
       <details class="ref" id="ref-plafon" data-keywords="plafon maksimum tahunan tabel 27 konversi prestasi koefisien">
-        <summary>Plafon AK per tahun <span class="ref__src">Tabel 27 dan 28</span></summary>
+        <summary>Plafon AK per tahun <span class="ref__src">Juknis · Tabel 27–28 · hlm. 69, 109</span></summary>
         <div class="table-wrap">
           <table class="table table--num">
             <thead><tr><th scope="col">Jabatan</th><th scope="col" class="num">Konversi 100%</th><th scope="col" class="num">Konversi 150%</th><th scope="col" class="num">Penelitian maks. (100%)</th><th scope="col" class="num">Penelitian maks. (150%)</th><th scope="col" class="num">Total per tahun</th></tr></thead>
@@ -348,28 +493,28 @@
         <p>Total per tahun tidak berubah oleh predikat. Predikat Sangat Baik menaikkan AK Konversi, tetapi menurunkan ruang AK penelitian dengan jumlah yang sama.</p>
       </details>
       <details class="ref" id="ref-skp-unsur" data-keywords="pengabdian penunjang pendidikan pengajaran skp bkd konversi unsur">
-        <summary>Pendidikan, pengabdian, dan penunjang <span class="ref__src">Bab C</span></summary>
+        <summary>Pendidikan, pengabdian, dan penunjang <span class="ref__src">Juknis · Bab C · hlm. 8–10</span></summary>
         <p>Sejak 1 Januari 2023, pelaksanaan pendidikan/pengajaran, pengabdian kepada masyarakat, dan penunjang dituangkan dalam SKP per semester berdasarkan rekomendasi asesor BKD. Predikat SKP dikonversi menjadi AK Konversi. Pelaksanaan penelitian dinilai terpisah per luaran sebagai AK Prestasi (Tabel 2).</p>
       </details>
       <details class="ref" id="ref-proporsi" data-keywords="proporsi penelitian 35 40 45 persen kekurangan">
-        <summary>Proporsi AK penelitian <span class="ref__src">Bab D.2</span></summary>
+        <summary>Proporsi AK penelitian <span class="ref__src">Juknis · Bab D.2 · hlm. 25–27</span></summary>
         <p>Dihitung dari kekurangan AK menuju target, sejak TMT jabatan terakhir: minimal 35% menuju Lektor, 40% menuju Lektor Kepala, dan 45% menuju Profesor. Contoh: Lektor 200 AK menuju 400 AK kekurangan 200 AK, jadi minimal 80 AK harus dari penelitian.</p>
       </details>
       <details class="ref" id="ref-jenjang" data-keywords="200 300 400 550 700 850 1050 nilai ak jenjang pangkat golongan target">
-        <summary>Nilai AK tiap jenjang <span class="ref__src">Bab D.10</span></summary>
+        <summary>Nilai AK tiap jenjang <span class="ref__src">Juknis · Bab D.10 · hlm. 58</span></summary>
         <p>Kenaikan satu jenjang dari Asisten Ahli ke Lektor menuju AK 200 atau 300, dari Lektor ke Lektor Kepala menuju AK 400, 550, atau 700, dan dari Lektor Kepala ke Profesor menuju AK 850 atau 1050. Contoh sertifikat di Bab H mengaitkan angka yang lebih tinggi dengan pangkat Dosen PNS yang lebih tinggi, misalnya Lektor Kepala AK 550 untuk pengusul III/d yang penilaiannya cukup sampai IV/b. Bila ragu, pakai angka terendah jenjang target.</p>
       </details>
       <details class="ref" id="ref-jurnal" data-keywords="sjr kuartil quartile scimago scopus impact factor jurnal bereputasi kriteria tabel 7">
-        <summary>Kriteria jurnal internasional bereputasi <span class="ref__src">Tabel 7</span></summary>
+        <summary>Kriteria jurnal internasional bereputasi <span class="ref__src">Juknis · Tabel 7 · hlm. 32; Paparan Ditjen Dikti (Agustus 2026)</span></summary>
         <ul>
           <li>Terindeks Scopus dengan SJR di atas 0,1, atau memiliki impact factor WoS di atas 0,05.</li>
-          <li>Kuartil dan SJR yang dipakai adalah nilai saat artikel diterbitkan. Saat dinilai, jurnal tidak boleh berstatus cancelled atau coverage discontinued.</li>
-          <li>Nilai SJR dan kuartil bisa dicek di SCImago Journal Rank (scimagojr.com) pada tahun terbit artikel.</li>
+          <li>Kuartil dan SJR harus memenuhi pada tahun artikel terbit dan pada tahun dinilai. Saat dinilai, jurnal tidak boleh berstatus cancelled atau coverage discontinued di Scopus.</li>
+          <li>Kuartil dilihat di SCImago Journal Rank (scimagojr.com) pada kategori bidang ilmu artikel. Bila SJR tidak memenuhi, IF dari Clarivate (WoS) bisa dipakai; SINTA belum tersinkron dengan WoS, jadi cek mandiri.</li>
           <li>Ber-ISSN, berbahasa resmi PBB, dewan editor dari minimal 4 negara, dan penulis dalam satu nomor berasal dari minimal 2 negara.</li>
         </ul>
       </details>
       <details class="ref" id="ref-penulis" data-keywords="penulis pertama korespondensi anggota pembagian porsi 60 40 50 20">
-        <summary>Pembagian AK antarpenulis <span class="ref__src">Keterangan *1 Tabel 2</span></summary>
+        <summary>Pembagian AK antarpenulis <span class="ref__src">Juknis · Ket. *1 Tabel 2 · hlm. 19</span></summary>
         <ul>
           <li>Dua penulis: penulis pertama sekaligus korespondensi 60%, penulis kedua 40%. Bila korespondensinya penulis kedua, masing-masing 50%.</li>
           <li>Tiga penulis atau lebih: penulis pertama sekaligus korespondensi 60%, sisanya 40% dibagi rata.</li>
@@ -377,7 +522,7 @@
         </ul>
       </details>
       <details class="ref" id="ref-kepatutan" data-keywords="batas kepatutan prosiding seminar 25 persen jurnal tidak terakreditasi 10 populer laporan 5">
-        <summary>Batas kepatutan <span class="ref__src">Tabel 2</span></summary>
+        <summary>Batas kepatutan <span class="ref__src">Juknis · Tabel 2 · hlm. 14–19</span></summary>
         <ul>
           <li>Prosiding dan seminar: paling banyak 25% dari AK penelitian yang diperlukan, untuk pengajuan Lektor Kepala dan Profesor. Paling banyak 2 artikel per konferensi.</li>
           <li>Jurnal nasional tidak terakreditasi: paling tinggi 10%, untuk pengajuan Lektor Kepala dan Profesor.</li>
@@ -386,17 +531,20 @@
         </ul>
       </details>
       <details class="ref" id="ref-sk-larangan" data-keywords="syarat khusus tesis disertasi tunggal jurnal sendiri edisi khusus seminar sebelum tmt">
-        <summary>Karya yang tidak bisa dipakai sebagai syarat khusus <span class="ref__src">Bab D.5.a, Tabel 7</span></summary>
+        <summary>Karya yang tidak bisa dipakai sebagai syarat khusus <span class="ref__src">Juknis · Bab D.5 · hlm. 29, 33; Paparan Ditjen Dikti (Agustus 2026)</span></summary>
         <ul>
           <li>Karya penulis tunggal.</li>
           <li>Hasil tesis atau disertasi pengusul, atau bimbingan mahasiswanya, termasuk yang terbit selama tugas/izin belajar. AK-nya tetap dihitung.</li>
           <li>Karya yang diterbitkan perguruan tinggi asal pengusul.</li>
           <li>Artikel edisi khusus yang berasal dari seminar. AK-nya tetap dihitung seperti edisi reguler.</li>
           <li>Karya yang terbit dalam 6 bulan sebelum TMT jabatan terakhir. AK-nya tetap dihitung.</li>
+          <li>Artikel studi pustaka (literature review) dan komunikasi singkat (short communication/letter). Syarat khusus harus berupa hasil penelitian.</li>
+          <li>Salah satu karya syarat khusus harus terbit paling lama 6 tahun sebelum pengajuan dan diperoleh selama jabatan terakhir.</li>
         </ul>
+        <p class="ref__note">Dua butir terakhir dari paparan Direktorat Sumber Daya, Ditjen Dikti (Agustus 2026).</p>
       </details>
       <details class="ref" id="ref-sk-jenjang" data-keywords="syarat khusus lektor kepala profesor q2 q3 sjr sinta">
-        <summary>Syarat khusus tiap jenjang <span class="ref__src">Tabel 4, 5, 6</span></summary>
+        <summary>Syarat khusus tiap jenjang <span class="ref__src">Juknis · Tabel 4–6 · hlm. 30–31</span></summary>
         <ul>
           <li>Menuju Lektor: jurnal nasional terakreditasi minimal peringkat 4, atau jurnal internasional bereputasi minimal Q4, sebagai penulis pertama.</li>
           <li>Menuju Lektor Kepala: jurnal internasional bereputasi minimal Q3 dengan SJR di atas 0,2, atau jurnal nasional minimal peringkat 2, sebagai penulis pertama sekaligus korespondensi.</li>
@@ -404,7 +552,7 @@
         </ul>
       </details>
       <details class="ref" id="ref-loncat" data-keywords="loncat dua jenjang prestasi luar biasa asisten ahli lektor kepala profesor">
-        <summary>Kenaikan dua jenjang <span class="ref__src">Bab D.6, Tabel 14 dan 15</span></summary>
+        <summary>Kenaikan dua jenjang <span class="ref__src">Juknis · Bab D.6, Tabel 14–15 · hlm. 45–47; Paparan Ditjen Dikti (Agustus 2026)</span></summary>
         <ul>
           <li>Asisten Ahli ke Lektor Kepala: minimal 2 tahun sebagai Asisten Ahli, ijazah doktor, SKP Sangat Baik 2 tahun terakhir, bukti prestasi luar biasa, dan 4 artikel minimal Q2 (2 sebagai penulis pertama sekaligus korespondensi, 2 sebagai penulis pertama).</li>
           <li>Lektor ke Profesor: minimal 2 tahun sebagai Lektor, 10 tahun sebagai dosen tetap, ijazah doktor, 2 artikel Q1 sebagai penulis pertama sekaligus korespondensi (salah satunya ber-IF tinggi) dan 2 artikel minimal Q2 sebagai penulis pertama, ditambah satu syarat khusus tambahan.</li>
@@ -412,7 +560,7 @@
         </ul>
       </details>
       <details class="ref" id="ref-syarat" data-keywords="pangkat golongan pns masa jabatan dua tahun bkd skp">
-        <summary>Syarat waktu, BKD, SKP, dan pangkat <span class="ref__src">Bab D.1</span></summary>
+        <summary>Syarat waktu, BKD, SKP, dan pangkat <span class="ref__src">Juknis · Bab D.1 · hlm. 23–24</span></summary>
         <ul>
           <li>Paling singkat 2 tahun dalam jabatan saat ini dan BKD 4 semester berturut-turut di perguruan tinggi yang sama. Masa kerja total tidak disyaratkan, kecuali untuk Profesor.</li>
           <li>SKP minimal Baik 2 tahun berturut-turut.</li>
@@ -420,8 +568,52 @@
           <li>Profesor: 10 tahun sebagai dosen tetap, termasuk masa CPNS dan tugas belajar, tidak termasuk masa calon dosen atau dosen tidak tetap.</li>
         </ul>
       </details>
+      <details class="ref" id="ref-pertama" data-keywords="pengangkatan pertama asisten ahli belum punya jabatan tenaga pengajar cpns formasi">
+        <summary>Pengangkatan pertama (belum punya jabatan) <span class="ref__src">Juknis · Bab B.2 · hlm. 5–7; Paparan LLDIKTI VII (Oktober 2026)</span></summary>
+        <ul>
+          <li>Dosen tetap yang terdata di SISTER; bagi yang berasal dari CPNS, sudah berstatus PNS.</li>
+          <li>Asisten Ahli: ijazah magister atau magister terapan. Lektor: ijazah doktor atau doktor terapan.</li>
+          <li>Sudah menjalankan Tridharma 1 tahun dan melaporkan BKD/LKD 2 semester berstatus Memenuhi.</li>
+          <li>SKP minimal Baik dalam 1 tahun terakhir.</li>
+          <li>Tersedia kebutuhan dan formasi jabatan akademik di perguruan tinggi; diajukan paling lambat 6 bulan sebelum BUP.</li>
+          <li>Syarat khusus: Asisten Ahli tidak ada. Lektor: 1 artikel jurnal nasional terakreditasi minimal peringkat 4, atau jurnal internasional bereputasi minimal Q4 (SJR > 0,1 atau IF > 0,05), sebagai penulis pertama, dengan kriteria yang sama seperti syarat khusus lain (bukan penulis tunggal, bukan dari tesis/disertasi, tidak terbit di jurnal PT sendiri).</li>
+          <li>AK pada PAK: 150 (Asisten Ahli) atau 200 (Lektor). AK selama masa sebelum pengangkatan dihitung dari predikat kinerja per bulan × koefisien jabatan (contoh juknis: 12 bulan Baik = 12,5 AK untuk Asisten Ahli) dan dicatat di PAK Kumulatif.</li>
+          <li>IKD jabatan yang dituju tetap perlu dipenuhi (Kepmen 500).</li>
+        </ul>
+        <p class="ref__note">Banyak asesor meminta publikasi sebagai penulis pertama untuk Asisten Ahli walau tidak tertulis sebagai syarat. Simulasi menampilkannya sebagai rekomendasi yang tidak menunda tanggal siap.</p>
+      </details>
+      <details class="ref" id="ref-ak-pendidikan" data-keywords="ijazah doktor s3 pendidikan formal ak pendidikan klaim">
+        <summary>AK pendidikan formal (ijazah doktor) <span class="ref__src">Paparan LLDIKTI VII (Oktober 2026) · slide 20</span></summary>
+        <p>Juknis 39/M/KEP/2026 memasukkan AK pendidikan formal ke PAK Kumulatif tanpa menyebut angkanya. Paparan LLDIKTI Wilayah VII (27 Oktober 2026) menetapkan nilainya mengikuti jabatan saat ijazah diperoleh, maksimal 25% dari kebutuhan naik pangkat satu tingkat:</p>
+        <ul>
+          <li>Asisten Ahli: 12,5 AK</li>
+          <li>Lektor: 25 AK</li>
+          <li>Lektor Kepala: 37,5 AK</li>
+          <li>Profesor: 50 AK</li>
+        </ul>
+        <p>Diklaim lewat SISTER, menu Layanan PAK → AK Pendidikan, setelah riwayat pendidikan terbaru tercatat. AK ini tidak dihitung sebagai AK penelitian.</p>
+      </details>
+      <details class="ref" id="ref-ikd" data-keywords="ikd indikator kinerja dosen kepmen 500 target jabatan pendidikan pengabdian bimbing bahan ajar">
+        <summary>Indikator Kinerja Dosen (IKD) <span class="ref__src">Kepmen 500 · Lampiran C, D</span></summary>
+        <p>Usulan kenaikan jabatan harus memenuhi standar minimum IKD jabatan yang dituju. Pengusul memilih satu komponen pendidikan dan satu komponen penelitian atau pengabdian (Paparan LLDIKTI VII (Oktober 2026)). Kode di akhir tiap butir adalah nomor indikator di Kepmen 500. Perguruan tinggi boleh menetapkan target yang lebih tinggi.</p>
+        <div id="ikd-ref"></div>
+        <p class="ref__note">IKD adalah penyebab kegagalan kedua terbanyak pada usulan Lektor Kepala Gelombang 1 2026: 23,8% dari bagian administrasi (Paparan Ditjen Dikti). Untuk Profesor, ambang IKD (SJR ≥ 0,15) berbeda dari ambang syarat khusus di juknis; keduanya harus dipenuhi.</p>
+      </details>
+      <details class="ref" id="ref-berkas" data-keywords="berkas korespondensi uji kemiripan similarity turnitin ithenticate protokol pakta integritas predator">
+        <summary>Kesiapan berkas karya syarat khusus <span class="ref__src">Paparan Ditjen Dikti (Agustus 2026)</span></summary>
+        <p>Penyebab kegagalan terbesar usulan Lektor Kepala dan Profesor Gelombang 1 2026 ada di syarat khusus: kelengkapan administrasi dan bukti proses penerbitan. Periksa sebelum mengusulkan:</p>
+        <ul>
+          <li>Bukti korespondensi lengkap: bukti submit, catatan reviewer, respons penulis, bukti diterima, dan bukti terbit.</li>
+          <li>Hasil uji kemiripan (Turnitin atau iThenticate) dengan protokol yang menjelaskan sumber yang dikecualikan. Batas: 25% keseluruhan (tanpa daftar pustaka dan kutipan), dan 3% terhadap satu sumber.</li>
+          <li>Jurnal bukan predator atau kloning, masih aktif, dan tidak discontinued pada tahun terbit maupun tahun dinilai.</li>
+          <li>Lingkup jurnal sesuai ranting ilmu atau kepakaran yang diusulkan, sejalan dengan pendidikan tertinggi.</li>
+          <li>Artikel memiliki kebaruan (tema, topik, metode, analisis, perspektif, atau inovasi).</li>
+          <li>Surat pernyataan pakta integritas keabsahan karya ilmiah, ditandatangani dan bermeterai, sesuai format juknis.</li>
+          <li>Dokumen diunggah sebagai berkas, bukan tautan Google Drive.</li>
+        </ul>
+      </details>
       <details class="ref" id="ref-bup" data-keywords="bup pensiun batas usia enam bulan">
-        <summary>Mendekati batas usia pensiun <span class="ref__src">Bab D</span></summary>
+        <summary>Mendekati batas usia pensiun <span class="ref__src">Juknis · Bab D · hlm. 71</span></summary>
         <p>Usulan di SISTER paling lambat 6 bulan sebelum BUP, dan penilaian paling lambat 4 bulan sebelum BUP.</p>
       </details>
     </div>
@@ -432,13 +624,77 @@
     <ul>
       <li>Tahun pertama dihitung sebanding jumlah bulan sejak TMT. Plafon penelitian tahun itu ikut dipotong sebanding.</li>
       <li>Plafon penelitian = plafon total tahunan dikurangi AK Konversi tahun itu. Rumus ini persis menghasilkan Tabel 27 untuk predikat Baik dan Sangat Baik.</li>
-      <li>AK ijazah doktor ditambahkan pada tahun lulus dan tidak dihitung sebagai penelitian. Juknis ini tidak menetapkan angkanya; isian diambil dari pengguna. Pastikan nilainya dengan tim PAK.</li>
+      <li>AK ijazah doktor ditambahkan pada tahun lulus dan tidak dihitung sebagai penelitian. Nilainya mengikuti jabatan saat lulus, sesuai paparan LLDIKTI Wilayah VII (Oktober 2026); juknis sendiri tidak menyebut angkanya. Pengguna bisa mengisi nilai lain.</li>
+      <li>IKD: komponen penelitian dihitung dari daftar karya dalam 3 tahun terakhir (buku Profesor 6 tahun); komponen pendidikan dan pengabdian dikonfirmasi pengguna. Bila belum lengkap, butir IKD ditandai “Perlu dicek” dan tidak menunda tanggal siap.</li>
       <li>Kesiapan dinilai pada akhir tahun, mengikuti penilaian AK Prestasi tahunan.</li>
       <li>Juknis mensyaratkan BKD 4 semester berturut-turut “dari perguruan tinggi yang sama”. Bagi dosen yang pindah kampus, simulasi menafsirkannya sebagai 4 semester sejak semester pertama di kampus baru. Konfirmasikan ke LLDIKTI atau bagian kepegawaian.</li>
       <li>Q2 bernilai 38 AK sesuai Tabel 2, meskipun contoh perhitungan di juknis memakai 37,5.</li>
+      <li>Pengangkatan pertama: tanggal siap paling cepat 12 bulan setelah mulai dosen tetap; artikel dan ijazah dianggap tersedia pada akhir tahunnya. AK masa sebelum pengangkatan diperkirakan dengan predikat SKP per tahun.</li>
       <li>Penilaian karya seni (Tabel 3) belum dimodelkan.</li>
     </ul>
+    <p class="disclaimer">Ambang IF jalur Lektor ke Profesor memakai 7 (Tabel 15), sejalan dengan paparan Direktorat Sumber Daya Agustus 2026.</p>
     <p class="disclaimer">Simulasi ini alat bantu perencanaan, bukan penetapan resmi. Hasil akhir mengikuti penilaian tim PAK dan data di SISTER.</p>
+  </section>
+
+  <section class="panel panel--full changelog" id="riwayat" aria-labelledby="h-riwayat">
+    <h2 id="h-riwayat" class="section-title">Riwayat versi</h2>
+    <ol class="changelog__list">
+      <li><p class="changelog__ver">1.7.1 <span>30 Oktober 2026</span></p>
+        <ul>
+          <li>Tombol survei menaut ke Form yang sudah dipublikasikan (tautan pendek).</li>
+          <li>Lisensi MIT ditambahkan (berkas LICENSE).</li>
+        </ul></li>
+      <li><p class="changelog__ver">1.7.0 <span>29 Oktober 2026</span></p>
+        <ul>
+          <li>Tab baru <strong>Cara pakai</strong> dengan tiga alur kerja; tab disingkat menjadi Simulasi · Cara pakai · Rujukan · Simpan.</li>
+          <li>Navigasi bagian di tab Simulasi (Hasil, Data diri, Karya, Proyeksi, Alat perencanaan) dengan penanda bagian aktif.</li>
+          <li>Saran rencana dan Bandingkan skenario disatukan di bawah sebagai Alat perencanaan.</li>
+          <li>Mode malam dengan warna gelap yang lembut, tombol di kanan atas; pilihan tersimpan di peramban.</li>
+        </ul></li>
+      <li><p class="changelog__ver">1.6.1 <span>29 Oktober 2026</span></p>
+        <ul><li>Nama dokumen acuan diberi bulan terbit: Paparan LLDIKTI VII (Oktober 2026) dan Paparan Ditjen Dikti (Agustus 2026).</li></ul></li>
+      <li><p class="changelog__ver">1.6.0 <span>29 Oktober 2026</span></p>
+        <ul>
+          <li>Saran rencana: contoh kombinasi karya per tahun untuk menutup kekurangan AK, AK penelitian, syarat khusus, dan IKD penelitian secepat mungkin; bisa langsung ditambahkan ke daftar karya.</li>
+          <li>Bandingkan skenario: simpan hingga 5 skenario dan bandingkan tanggal siap, AK akhir, dan syarat yang belum terpenuhi.</li>
+          <li>Status karya lebih rinci (rencana, dikirim, diterima, terbit) dan mode proyeksi konservatif yang hanya menghitung karya diterima atau terbit.</li>
+          <li>Nomor halaman juknis pada setiap entri Rujukan.</li>
+        </ul></li>
+      <li><p class="changelog__ver">1.5.0 <span>29 Oktober 2026</span></p>
+        <ul>
+          <li>Mode pengangkatan pertama: pilih “Belum punya jabatan akademik” untuk target Asisten Ahli atau Lektor. Tanggal siap dihitung dari 1 tahun Tridharma, BKD 2 semester, SKP, ijazah, dan (untuk Lektor) artikel syarat khusus.</li>
+          <li>Rekomendasi publikasi penulis pertama untuk Asisten Ahli, ditandai “Disarankan” dan tidak menunda tanggal siap.</li>
+          <li>IKD standar Asisten Ahli (Kepmen 500) dan rujukan pengangkatan pertama.</li>
+        </ul></li>
+      <li><p class="changelog__ver">1.4.0 <span>29 Oktober 2026</span></p>
+        <ul>
+          <li>Panel baru Indikator Kinerja Dosen (IKD) berisi standar minimum jabatan tujuan dari Kepmen 500/M/2024. Komponen penelitian dihitung otomatis dari daftar karya (3 tahun terakhir); pendidikan dan pengabdian dikonfirmasi pengguna.</li>
+          <li>Rujukan IKD memuat standar Lektor, Lektor Kepala, dan Profesor.</li>
+          <li>Daftar Dokumen acuan di tab Rujukan; setiap aturan menyebut dokumen sumbernya.</li>
+        </ul></li>
+      <li><p class="changelog__ver">1.3.1 <span>29 Oktober 2026</span></p>
+        <ul>
+          <li>Catatan dan tautan ke Asumsi simulasi di bawah judul.</li>
+          <li>Tombol Unduh berkas .json selalu terlihat; di pratinjau yang memblokir unduhan muncul penjelasan.</li>
+        </ul></li>
+      <li><p class="changelog__ver">1.3.0 <span>29 Oktober 2026</span></p>
+        <ul>
+          <li>AK ijazah doktor dihitung otomatis dari jabatan saat lulus (Asisten Ahli 12,5; Lektor 25; Lektor Kepala 37,5; Profesor 50), sesuai paparan LLDIKTI Wilayah VII. Nilai lain tetap bisa diisi sendiri.</li>
+          <li>Butir IKD (Indikator Kinerja Dosen) di Daftar syarat, dikonfirmasi pengguna.</li>
+          <li>Literature review dan short communication ditandai tidak bisa dipakai untuk syarat khusus.</li>
+          <li>Rujukan baru: AK pendidikan formal, IKD, dan kesiapan berkas syarat khusus (korespondensi, uji kemiripan, status jurnal).</li>
+          <li>Kuartil dan SJR diperiksa pada tahun terbit dan tahun dinilai.</li>
+          <li>Riwayat versi ini.</li>
+        </ul></li>
+      <li><p class="changelog__ver">1.2.0 <span>29 Oktober 2026</span></p>
+        <ul><li>Data contoh fiktif. Panel Beri penilaian di tab Simpan &amp; cetak.</li></ul></li>
+      <li><p class="changelog__ver">1.1.1 <span>28 Oktober 2026</span></p>
+        <ul><li>Kolom Kurang (sisa AK menuju target) pada tabel proyeksi.</li></ul></li>
+      <li><p class="changelog__ver">1.1.0 <span>23 Oktober 2026</span></p>
+        <ul><li>Panduan langkah awal. Nomor versi di kaki halaman.</li></ul></li>
+      <li><p class="changelog__ver">1.0.0 <span>22 Oktober 2026</span></p>
+        <ul><li>Rilis awal: simulasi AK, syarat khusus, BKD, rujukan juknis, laporan PDF.</li></ul></li>
+    </ol>
   </section>
 </div>
 
@@ -470,11 +726,19 @@
     <p class="status-msg" id="data-msg" role="status"></p>
   </section>
 
+  <section class="panel panel--full" aria-labelledby="h-nilai">
+    <h2 id="h-nilai" class="section-title">Beri penilaian</h2>
+    <p class="lede">Bantu kami memperbaiki aplikasi ini. Survei singkat sekitar 5–7 menit: tiga tugas percobaan lalu sepuluh pernyataan tentang kemudahan penggunaan. Tanpa nama atau email; survei dibuka di Google Forms, terpisah dari data rencana Anda.</p>
+    <div class="btn-row">
+      <a class="btn btn--primary" id="btn-survey" href="https://forms.gle/uiav1hKy65h9uKNK8" target="_blank" rel="noopener noreferrer">Isi survei penilaian</a>
+    </div>
+  </section>
+
 </div>
 </main>
 
 <footer class="foot">
-  <p class="micro">Aplikasi versi <span id="app-version"></span> · Aturan versi <span id="rules-version"></span> · Kepmendiktisaintek No. 39/M/KEP/2026</p>
+  <p class="micro">Aplikasi versi <span id="app-version"></span> (<a href="#rujukan" data-ref="riwayat">riwayat versi</a>) · Aturan versi <span id="rules-version"></span> · Kepmendiktisaintek No. 39/M/KEP/2026</p>
 </footer>
 
 <script src="js/rules.js"></script>
